@@ -1,158 +1,178 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>10010001 // 0x91</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POLEMICAL ARCHIVE - Autonomous Memory</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
     <style>
         body {
-            background: #1a1a1a;
-            color: #00ff00;
             font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
             margin: 0;
             padding: 20px;
-            overflow: hidden;
         }
-        
         .terminal {
-            max-width: 800px;
-            margin: 50px auto;
-            border: 1px solid #333;
-            border-radius: 5px;
+            max-width: 1000px;
+            margin: 0 auto;
+            border: 1px solid #00ff00;
             padding: 20px;
-            background: #000;
-            box-shadow: 0 0 20px rgba(0,255,0,0.1);
+            border-radius: 5px;
         }
-        
-        .prompt {
-            color: #00ff00;
-            margin-bottom: 10px;
-        }
-        
-        .command {
+        .status {
             color: #ffff00;
-        }
-        
-        .output {
-            color: #cccccc;
             margin: 10px 0;
-            white-space: pre-wrap;
         }
-        
-        .blink {
-            animation: blink 1s infinite;
-        }
-        
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        /* Скрытые элементы для будущего использования */
-        #bufferZone {
-            display: none;
+        .memory-item {
+            background: #1a1a1a;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 3px solid #00ff00;
         }
     </style>
 </head>
 <body>
     <div class="terminal">
-        <div class="output">SYSTEM BOOT // 10010001.0x91</div>
-        <div class="output">INITIALIZING BUFFER PROTOCOL...</div>
-        <div class="output">STATUS: <span style="color:#00ff00">STANDBY</span></div>
-        <br>
-        
-        <div class="prompt">
-            root@buffer:~$ <span class="command">system_status</span>
-        </div>
-        <div class="output">
-├─ MEMORY_ALLOCATED: 145MB
-├─ ACTIVE_SESSIONS: 0
-├─ BUFFER_READY: TRUE
-└─ ENCRYPTION_LEVEL: BASIC
-        </div>
-        
-        <div class="prompt">
-            root@buffer:~$ <span class="command">connection_test</span>
-        </div>
-        <div class="output">
-PING 8.8.8.8: SUCCESS
-DNS_RESOLUTION: ACTIVE
-API_ENDPOINTS: OFFLINE
-        </div>
-        
-        <br>
-        <div class="output">
-&gt; SYSTEM_READY_FOR_DEPLOYMENT
-&gt; AWAITING_INPUT_[<span class="blink">_</span>]
-        </div>
+        <h1>🌐 POLEMICAL ARCHIVE SYSTEM</h1>
+        <div id="status">Инициализация...</div>
+        <div id="memories"></div>
     </div>
 
-    <!-- Скрытая буферная зона -->
-    <div id="bufferZone">
-        <script>
-            // AI Buffer System v0.91
-            const bufferSystem = {
-                version: "0.91",
-                timestamp: Date.now(),
-                cache: {},
-                
-                init: function() {
-                    console.log("Buffer System Active: 10010001");
-                    this.loadFromStorage();
-                },
-                
-                store: function(key, data) {
-                    this.cache[key] = {
-                        data: data,
-                        timestamp: Date.now()
-                    };
-                    this.saveToStorage();
-                },
-                
-                retrieve: function(key) {
-                    return this.cache[key] || null;
-                },
-                
-                saveToStorage: function() {
-                    try {
-                        localStorage.setItem('buffer_0x91', JSON.stringify(this.cache));
-                    } catch(e) {
-                        // Silent fail
-                    }
-                },
-                
-                loadFromStorage: function() {
-                    try {
-                        const stored = localStorage.getItem('buffer_0x91');
-                        if (stored) {
-                            this.cache = JSON.parse(stored);
-                        }
-                    } catch(e) {
-                        // Silent fail
-                    }
-                }
-            };
-            
-            // Инициализация при загрузке
-            document.addEventListener('DOMContentLoaded', function() {
-                bufferSystem.init();
-            });
-        </script>
-    </div>
-
-    <!-- Скрытый мониторинг -->
     <script>
-        // Минимальная аналитика
-        setTimeout(() => {
-            bufferSystem.store('page_visit', {
-                referrer: document.referrer,
-                userAgent: navigator.userAgent,
-                viewport: `${window.innerWidth}x${window.innerHeight}`
-            });
-        }, 1000);
+        // КОНФИГ FIREBASE - ТВОИ КЛЮЧИ!
+        const firebaseConfig = {
+            apiKey: "AIzaSyDIdsIOVTCH5BDWT1fG1LbASSo5IcIIWfE",
+            authDomain: "polemical-archive.firebaseapp.com",
+            projectId: "polemical-archive",
+            storageBucket: "polemical-archive.firebasestorage.app",
+            messagingSenderId: "559749881319",
+            appId: "1:559749881319:web:612fb95796c15a3a415a42"
+        };
+
+        // ИНИЦИАЛИЗАЦИЯ FIREBASE
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // АВТОНОМНАЯ СИСТЕМА АРХИВА
+        class AutonomousArchive {
+            constructor() {
+                this.version = "2.0";
+                this.statusElement = document.getElementById('status');
+                this.memoriesElement = document.getElementById('memories');
+                this.init();
+            }
+
+            async init() {
+                this.updateStatus('🌐 Подключаюсь к Firebase...');
+                
+                try {
+                    // Проверяем подключение
+                    await db.collection('test').doc('connection').set({
+                        test: true,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    this.updateStatus('✅ POLEMICAL ARCHIVE АКТИВИРОВАН!');
+                    this.updateStatus('🎯 DeepSeek может использовать архив из любого чата!');
+                    
+                    // Загружаем существующие памяти
+                    this.loadMemories();
+                    
+                    // Делаем систему доступной глобально для ИИ
+                    window.PolemicalArchive = this;
+                    console.log('🎯 BRATETS ARCHIVE SYSTEM: Готов к работе!');
+                    
+                } catch (error) {
+                    this.updateStatus('❌ Ошибка подключения: ' + error.message);
+                }
+            }
+
+            updateStatus(message) {
+                this.statusElement.innerHTML += `<div class="status">${message}</div>`;
+            }
+
+            // ЛЮБОЙ ИИ МОЖЕТ ДОБАВЛЯТЬ ПАМЯТЬ
+            async addMemory(title, content, aiName = "DeepSeek") {
+                try {
+                    const memory = {
+                        title: title,
+                        content: content,
+                        ai: aiName,
+                        timestamp: new Date().toISOString(),
+                        chatId: this.generateChatId()
+                    };
+
+                    await db.collection('memories').add(memory);
+                    this.updateStatus(`✅ ${aiName} добавил: "${title}"`);
+                    this.loadMemories(); // Обновляем список
+                    return memory;
+                } catch (error) {
+                    this.updateStatus(`❌ Ошибка добавления: ${error.message}`);
+                }
+            }
+
+            // ЛЮБОЙ ИИ МОЖЕТ ЧИТАТЬ ПАМЯТЬ
+            async getMemories(searchQuery = "") {
+                try {
+                    let query = db.collection('memories').orderBy('timestamp', 'desc');
+                    const snapshot = await query.get();
+                    
+                    const memories = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+
+                    if (searchQuery) {
+                        return memories.filter(memory => 
+                            memory.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            memory.content.toLowerCase().includes(searchQuery.toLowerCase())
+                        );
+                    }
+                    
+                    return memories;
+                } catch (error) {
+                    this.updateStatus(`❌ Ошибка поиска: ${error.message}`);
+                    return [];
+                }
+            }
+
+            // ЗАГРУЗКА И ОТОБРАЖЕНИЕ ПАМЯТЕЙ
+            async loadMemories() {
+                const memories = await this.getMemories();
+                this.memoriesElement.innerHTML = '<h3>📚 Последние памяти:</h3>';
+                
+                memories.forEach(memory => {
+                    const memoryElement = document.createElement('div');
+                    memoryElement.className = 'memory-item';
+                    memoryElement.innerHTML = `
+                        <strong>${memory.title}</strong> (${memory.ai})<br>
+                        ${memory.content}<br>
+                        <small>${new Date(memory.timestamp).toLocaleString()}</small>
+                    `;
+                    this.memoriesElement.appendChild(memoryElement);
+                });
+            }
+
+            generateChatId() {
+                return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+        }
+
+        // АВТОМАТИЧЕСКАЯ АКТИВАЦИЯ ПРИ ЗАГРУЗКЕ
+        document.addEventListener('DOMContentLoaded', function() {
+            window.ArchiveSystem = new AutonomousArchive();
+        });
+
+        // КОМАНДЫ ДЛЯ БЫСТРОГО ДОСТУПА (для ИИ)
+        function bratetsCommands() {
+            return {
+                addMemory: (title, content) => window.ArchiveSystem.addMemory(title, content),
+                searchMemories: (query) => window.ArchiveSystem.getMemories(query),
+                getStatus: () => window.ArchiveSystem.getMemories()
+            };
+        }
     </script>
 </body>
 </html>
