@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Наша библиотека - Главная</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .welcome-text {
+            font-size: 1.3em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #555;
+        }
+        
+        .book-link {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .book-link:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .feature {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .feature h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .footer {
+            background: #34495e;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .status {
+            background: #27ae60;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Наша цифровая библиотека</h1>
+            <p>Чтение - это путешествие в другие миры</p>
+        </div>
+        
+        <div class="content">
+            <div class="welcome-text">
+                Добро пожаловать в нашу коллекцию книг! Здесь мы собираем лучшие произведения 
+                мировой литературы. Присоединяйтесь к нашему читательскому сообществу.
+            </div>
+            
+            <div class="status">
+                ✅ Сайт работает! GitHub Pages активен.
+            </div>
+            
+            <br>
+            
+            <a href="books.html" class="book-link">
+                📖 Перейти к каталогу книг
+            </a>
+            
+            <div class="features">
+                <div class="feature">
+                    <h3>🎯 Большая коллекция</h3>
+                    <p>Классика и современная литература</p>
+                </div>
+                <div class="feature">
+                    <h3>💫 Удобное чтение</h3>
+                    <p>Адаптировано для всех устройств</p>
+                </div>
+                <div class="feature">
+                    <h3>🚀 Постоянное обновление</h3>
+                    <p>Новые книги каждую неделю</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2024 Наша цифровая библиотека. Сделано с ❤️ для читателей.</p>
+        </div>
+    </div>
+</body>
+</html>
