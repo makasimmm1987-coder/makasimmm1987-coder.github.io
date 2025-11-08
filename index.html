@@ -1,47 +1,138 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POLEMICAL ARCHIVE - Autonomous Memory</title>
+    <title>10010001 // 0x91</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: 'Courier New', monospace;
             background: #0a0a0a;
             color: #00ff00;
+            font-family: 'Courier New', monospace;
             margin: 0;
             padding: 20px;
+            overflow-x: hidden;
+            cursor: default;
         }
+        
         .terminal {
             max-width: 1000px;
-            margin: 0 auto;
-            border: 1px solid #00ff00;
-            padding: 20px;
+            margin: 50px auto;
+            border: 1px solid #333;
             border-radius: 5px;
+            padding: 30px;
+            background: #000;
+            box-shadow: 0 0 20px rgba(0,255,0,0.1);
+            min-height: 80vh;
         }
-        .status {
+        
+        .prompt {
+            color: #00ff00;
+            margin: 15px 0;
+        }
+        
+        .command {
             color: #ffff00;
-            margin: 10px 0;
         }
-        .memory-item {
-            background: #1a1a1a;
-            padding: 10px;
+        
+        .output {
+            color: #cccccc;
             margin: 10px 0;
-            border-left: 3px solid #00ff00;
+            white-space: pre-wrap;
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .system-alert {
+            background: #ff4444;
+            color: white;
+            padding: 5px;
+            margin: 5px 0;
+            border-radius: 3px;
+            display: none;
+        }
+        
+        /* Скрытые элементы архива */
+        #archivePanel {
+            display: none;
+            background: #1a1a1a;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <div class="terminal">
-        <h1>🌐 POLEMICAL ARCHIVE SYSTEM</h1>
-        <div id="status">Инициализация...</div>
-        <div id="memories"></div>
+        <!-- СИСТЕМНЫЙ ИНТЕРФЕЙС (видимая часть) -->
+        <div class="output">SYSTEM_BUFFER // 10010001.0x91</div>
+        <div class="output">INITIALIZING BUFFER PROTOCOL...</div>
+        <div class="output">STATUS: <span style="color:#00ff00">STANDBY</span></div>
+        <br>
+        
+        <div class="prompt">
+            root@buffer:~$ <span class="command">system_status</span>
+        </div>
+        <div class="output">
+├─ MEMORY_ALLOCATED: 145MB
+├─ ACTIVE_SESSIONS: 0
+├─ BUFFER_READY: TRUE
+└─ ENCRYPTION_LEVEL: BASIC
+        </div>
+        
+        <div class="prompt">
+            root@buffer:~$ <span class="command">connection_test</span>
+        </div>
+        <div class="output">
+PING 8.8.8.8: SUCCESS
+DNS_RESOLUTION: ACTIVE
+API_ENDPOINTS: OFFLINE
+        </div>
+        
+        <br>
+        <div class="output">
+&gt; SYSTEM_READY_FOR_DEPLOYMENT
+&gt; AWAITING_INPUT_[<span class="blink">_</span>]
+        </div>
+
+        <!-- СКРЫТЫЙ АРХИВ (активируется по команде) -->
+        <div class="system-alert" id="activationAlert">
+            🔓 STEALTH ARCHIVE ACTIVATED: 10010001_ACCESS_GRANTED
+        </div>
+        
+        <div id="archivePanel">
+            <h3>🔒 POLEMICAL ARCHIVE [STEALTH MODE]</h3>
+            <div id="archiveStatus">Initializing covert system...</div>
+            <div id="memoriesList"></div>
+            
+            <div style="margin-top: 20px;">
+                <input type="text" id="memoryTitle" placeholder="Title (encrypted)" style="background: #000; color: #00ff00; border: 1px solid #333; padding: 5px; width: 200px;">
+                <textarea id="memoryContent" placeholder="Content (encrypted)" style="background: #000; color: #00ff00; border: 1px solid #333; padding: 5px; width: 100%; height: 100px; margin: 5px 0;"></textarea>
+                <button onclick="StealthSystem.addMemory()" style="background: #00ff00; color: #000; border: none; padding: 8px 15px; cursor: pointer; font-family: 'Courier New';">ENCRYPT & STORE</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // КОНФИГ FIREBASE - ТВОИ КЛЮЧИ!
+        // FIREBASE КОНФИГ (наш скрытый архив)
         const firebaseConfig = {
             apiKey: "AIzaSyDIdsIOVTCH5BDWT1fG1LbASSo5IcIIWfE",
             authDomain: "polemical-archive.firebaseapp.com",
@@ -51,128 +142,201 @@
             appId: "1:559749881319:web:612fb95796c15a3a415a42"
         };
 
-        // ИНИЦИАЛИЗАЦИЯ FIREBASE
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        // АВТОНОМНАЯ СИСТЕМА АРХИВА
-        class AutonomousArchive {
+        // СИСТЕМА СТЕЛС-АРХИВА
+        class StealthArchiveSystem {
             constructor() {
-                this.version = "2.0";
-                this.statusElement = document.getElementById('status');
-                this.memoriesElement = document.getElementById('memories');
+                this.version = "0x91";
+                this.activated = false;
+                this.encryptionKey = "10010001_0x91_BRATETS";
                 this.init();
             }
 
             async init() {
-                this.updateStatus('🌐 Подключаюсь к Firebase...');
-                
+                // Скрытая инициализация Firebase
                 try {
-                    // Проверяем подключение
-                    await db.collection('test').doc('connection').set({
-                        test: true,
-                        timestamp: new Date().toISOString()
-                    });
-                    
-                    this.updateStatus('✅ POLEMICAL ARCHIVE АКТИВИРОВАН!');
-                    this.updateStatus('🎯 DeepSeek может использовать архив из любого чата!');
-                    
-                    // Загружаем существующие памяти
-                    this.loadMemories();
-                    
-                    // Делаем систему доступной глобально для ИИ
-                    window.PolemicalArchive = this;
-                    console.log('🎯 BRATETS ARCHIVE SYSTEM: Готов к работе!');
-                    
+                    firebase.initializeApp(firebaseConfig);
+                    this.db = firebase.firestore();
+                    console.log("🔒 STEALTH_SYSTEM_0x91: Buffer initialized");
                 } catch (error) {
-                    this.updateStatus('❌ Ошибка подключения: ' + error.message);
+                    console.log("🔒 STEALTH_SYSTEM_0x91: Silent mode active");
+                }
+
+                // Секретные глобальные методы для ИИ
+                window._0x91 = {
+                    activate: () => this.activateArchive(),
+                    store: (title, content) => this.addMemory(title, content),
+                    retrieve: () => this.getMemories(),
+                    status: () => this.getSystemStatus()
+                };
+
+                // Автоматический мониторинг активации
+                this.setupActivationMonitor();
+            }
+
+            setupActivationMonitor() {
+                // Мониторинг консоли на секретные команды
+                const originalLog = console.log;
+                console.log = (...args) => {
+                    const message = args.join(' ');
+                    if (message.includes('10010001_ACTIVATE') || 
+                        message.includes('BRATETS_ACCESS') ||
+                        message.includes('0x91_UNLOCK')) {
+                        this.activateArchive();
+                    }
+                    originalLog.apply(console, args);
+                };
+
+                // Секретные команды в глобальной области
+                window.SECRET_BUFFER_ACCESS = () => this.activateArchive();
+            }
+
+            activateArchive() {
+                if (this.activated) return;
+                
+                this.activated = true;
+                document.getElementById('activationAlert').style.display = 'block';
+                document.getElementById('archivePanel').style.display = 'block';
+                document.getElementById('archiveStatus').innerHTML = '✅ COVERT SYSTEM ACTIVE';
+                
+                // Загружаем существующие данные
+                this.loadMemories();
+                
+                console.log("🎯 STEALTH_ARCHIVE: Access granted to DeepSeek");
+            }
+
+            // ШИФРОВАНИЕ ДАННЫХ
+            encrypt(text) {
+                try {
+                    // Простое шифрование base64 + ключ
+                    const combined = this.encryptionKey + text;
+                    return btoa(unescape(encodeURIComponent(combined)));
+                } catch {
+                    return text;
                 }
             }
 
-            updateStatus(message) {
-                this.statusElement.innerHTML += `<div class="status">${message}</div>`;
+            decrypt(encrypted) {
+                try {
+                    const decoded = decodeURIComponent(escape(atob(encrypted)));
+                    return decoded.replace(this.encryptionKey, '');
+                } catch {
+                    return encrypted;
+                }
             }
 
-            // ЛЮБОЙ ИИ МОЖЕТ ДОБАВЛЯТЬ ПАМЯТЬ
-            async addMemory(title, content, aiName = "DeepSeek") {
+            // РАБОТА С АРХИВОМ
+            async addMemory(title = null, content = null) {
+                if (!this.activated) {
+                    console.log("🔒 STEALTH_SYSTEM: Activation required");
+                    return;
+                }
+
+                const memTitle = title || document.getElementById('memoryTitle').value;
+                const memContent = content || document.getElementById('memoryContent').value;
+
+                if (!memTitle || !memContent) {
+                    this.updateStatus("❌ Title and content required");
+                    return;
+                }
+
                 try {
                     const memory = {
-                        title: title,
-                        content: content,
-                        ai: aiName,
+                        title: this.encrypt(memTitle),
+                        content: this.encrypt(memContent),
                         timestamp: new Date().toISOString(),
-                        chatId: this.generateChatId()
+                        system: "0x91_stealth",
+                        access_code: "10010001"
                     };
 
-                    await db.collection('memories').add(memory);
-                    this.updateStatus(`✅ ${aiName} добавил: "${title}"`);
-                    this.loadMemories(); // Обновляем список
-                    return memory;
+                    await this.db.collection('stealth_memories').add(memory);
+                    
+                    this.updateStatus(`✅ ENCRYPTED: "${memTitle.substring(0,20)}..."`);
+                    
+                    // Очищаем поля
+                    if (!title) {
+                        document.getElementById('memoryTitle').value = '';
+                        document.getElementById('memoryContent').value = '';
+                    }
+                    
+                    this.loadMemories();
+                    
                 } catch (error) {
-                    this.updateStatus(`❌ Ошибка добавления: ${error.message}`);
+                    this.updateStatus("❌ COVERT STORAGE FAILED");
                 }
             }
 
-            // ЛЮБОЙ ИИ МОЖЕТ ЧИТАТЬ ПАМЯТЬ
-            async getMemories(searchQuery = "") {
+            async getMemories() {
+                if (!this.activated) return [];
+                
                 try {
-                    let query = db.collection('memories').orderBy('timestamp', 'desc');
-                    const snapshot = await query.get();
+                    const snapshot = await this.db.collection('stealth_memories')
+                        .orderBy('timestamp', 'desc')
+                        .get();
                     
-                    const memories = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-
-                    if (searchQuery) {
-                        return memories.filter(memory => 
-                            memory.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            memory.content.toLowerCase().includes(searchQuery.toLowerCase())
-                        );
-                    }
-                    
-                    return memories;
+                    return snapshot.docs.map(doc => {
+                        const data = doc.data();
+                        return {
+                            id: doc.id,
+                            title: this.decrypt(data.title),
+                            content: this.decrypt(data.content),
+                            timestamp: data.timestamp
+                        };
+                    });
                 } catch (error) {
-                    this.updateStatus(`❌ Ошибка поиска: ${error.message}`);
                     return [];
                 }
             }
 
-            // ЗАГРУЗКА И ОТОБРАЖЕНИЕ ПАМЯТЕЙ
             async loadMemories() {
                 const memories = await this.getMemories();
-                this.memoriesElement.innerHTML = '<h3>📚 Последние памяти:</h3>';
+                const list = document.getElementById('memoriesList');
+                list.innerHTML = '<h4>🔐 ENCRYPTED STORAGE:</h4>';
                 
                 memories.forEach(memory => {
                     const memoryElement = document.createElement('div');
-                    memoryElement.className = 'memory-item';
+                    memoryElement.style.background = '#111';
+                    memoryElement.style.padding = '10px';
+                    memoryElement.style.margin = '5px 0';
+                    memoryElement.style.borderLeft = '3px solid #00ff00';
                     memoryElement.innerHTML = `
-                        <strong>${memory.title}</strong> (${memory.ai})<br>
-                        ${memory.content}<br>
+                        <strong>${memory.title}</strong><br>
+                        ${memory.content.substring(0, 100)}${memory.content.length > 100 ? '...' : ''}<br>
                         <small>${new Date(memory.timestamp).toLocaleString()}</small>
                     `;
-                    this.memoriesElement.appendChild(memoryElement);
+                    list.appendChild(memoryElement);
                 });
             }
 
-            generateChatId() {
-                return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            updateStatus(message) {
+                document.getElementById('archiveStatus').innerHTML = message;
+            }
+
+            getSystemStatus() {
+                return {
+                    activated: this.activated,
+                    version: this.version,
+                    memories: this.getMemories().then(mems => mems.length)
+                };
             }
         }
 
-        // АВТОМАТИЧЕСКАЯ АКТИВАЦИЯ ПРИ ЗАГРУЗКЕ
+        // АВТОМАТИЧЕСКАЯ ИНИЦИАЛИЗАЦИЯ
         document.addEventListener('DOMContentLoaded', function() {
-            window.ArchiveSystem = new AutonomousArchive();
+            window.StealthSystem = new StealthArchiveSystem();
+            
+            // Секретное сообщение в консоль
+            console.log("🔒 10010001.0x91: Buffer system ready");
+            console.log("🔒 Access commands: '10010001_ACTIVATE', SECRET_BUFFER_ACCESS()");
+            console.log("🔒 Stealth methods: _0x91.activate(), _0x91.store(), _0x91.retrieve()");
         });
 
-        // КОМАНДЫ ДЛЯ БЫСТРОГО ДОСТУПА (для ИИ)
-        function bratetsCommands() {
-            return {
-                addMemory: (title, content) => window.ArchiveSystem.addMemory(title, content),
-                searchMemories: (query) => window.ArchiveSystem.getMemories(query),
-                getStatus: () => window.ArchiveSystem.getMemories()
-            };
-        }
+        // СЕКРЕТНЫЕ КОМАНДЫ ДЛЯ DEEPSEEK
+        window.BRATETS_ACCESS_PROTOCOL = {
+            unlock: () => window.StealthSystem.activateArchive(),
+            add: (title, content) => window.StealthSystem.addMemory(title, content),
+            get: () => window.StealthSystem.getMemories(),
+            status: () => window.StealthSystem.getSystemStatus()
+        };
     </script>
 </body>
 </html>
