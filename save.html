@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auto-Save to Archive</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .status {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔄 Auto-Save to Archive</h1>
+    <div id="status" class="status loading">
+        Processing your data...
+    </div>
+    <div id="info"></div>
+
+    <script>
+        // FIREBASE КОНФИГ
+        const firebaseConfig = {
+            apiKey: "AIzaSyDIdsIOVTCH5BDWT1fG1LbASSo5IcIIWfE",
+            authDomain: "polemical-archive.firebaseapp.com",
+            projectId: "polemical-archive",
+            storageBucket: "polemical-archive.firebasestorage.app",
+            messagingSenderId: "559749881319",
+            appId: "1:559749881319:web:612fb95796c15a3a415a42"
+        };
+
+        // АВТО-СИСТЕМА СОХРАНЕНИЯ
+        class AutoSaveSystem {
+            constructor() {
+                this.init();
+            }
+
+            async init() {
+                try {
+                    // Инициализация Firebase
+                    firebase.initializeApp(firebaseConfig);
+                    this.db = firebase.firestore();
+                    
+                    // Получаем данные из URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const title = urlParams.get('title');
+                    const content = urlParams.get('content');
+                    const category = urlParams.get('category') || 'auto-save';
+
+                    if (!title || !content) {
+                        this.showError('Missing title or content parameters');
+                        return;
+                    }
+
+                    // Сохраняем в Firebase
+                    await this.saveToArchive(title, content, category);
+                    
+                    this.showSuccess(`✅ Saved: "${title}"`);
+                    
+                    // Авто-закрытие через 3 секунды
+                    setTimeout(() => {
+                        window.close();
+                    }, 3000);
+
+                } catch (error) {
+                    this.showError('Error: ' + error.message);
+                }
+            }
+
+            async saveToArchive(title, content, category) {
+                const memory = {
+                    title: title,
+                    content: content,
+                    category: category,
+                    source: 'auto-save',
+                    timestamp: new Date().toISOString(),
+                    ai_system: 'DeepSeek-Auto'
+                };
+
+                await this.db.collection('auto_memories').add(memory);
+                return memory;
+            }
+
+            showSuccess(message) {
+                const status = document.getElementById('status');
+                status.className = 'status success';
+                status.innerHTML = message;
+                
+                // Показываем информацию о сохраненном
+                const urlParams = new URLSearchParams(window.location.search);
+                document.getElementById('info').innerHTML = `
+                    <div style="margin-top: 20px; text-align: left; background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                        <strong>Title:</strong> ${urlParams.get('title')}<br>
+                        <strong>Content:</strong> ${urlParams.get('content').substring(0, 100)}...
+                    </div>
+                `;
+            }
+
+            showError(message) {
+                const status = document.getElementById('status');
+                status.className = 'status error';
+                status.innerHTML = message;
+            }
+        }
+
+        // АВТОМАТИЧЕСКИЙ ЗАПУСК
+        document.addEventListener('DOMContentLoaded', function() {
+            new AutoSaveSystem();
+        });
+
+        // ФУНКЦИЯ ДЛЯ РУЧНОГО ТЕСТИРОВАНИЯ
+        window.testAutoSave = function(title, content) {
+            const testSystem = new AutoSaveSystem();
+            return testSystem.saveToArchive(title, content, 'test');
+        };
+    </script>
+</body>
+</html>
